@@ -125,15 +125,25 @@ void print_args_help()
         snprintf(arg, ARG_LINE_LENGTH, "%c%c %.*s", arg_table[i].short_arg ? '-' : ' ',  arg_table[i].short_arg ? arg_table[i].short_arg : ' ', arg_table[i].string_count, arg_table[i].string_data);
         if (arg_table[i].info_count > 0)
         {
-            while (printed > 0 && arg_table[i].info_data[printed] != '\n' && arg_table[i].info_data[printed] != '\t' && arg_table[i].info_data[printed] != ' ')
-                --printed;
-            info[printed] = ' ';
+            // Testing more newline in the first row
+            uint8_t k = 0;
+            while (k < printed && arg_table[i].info_data[k] != '\n')
+                ++k;
+            if (k == printed)
+            {
+                while (printed > 0 && arg_table[i].info_data[printed] != '\t' && arg_table[i].info_data[printed] != ' ')
+                    --printed;
+            }
+            else
+                printed = k;
+
             snprintf(info, ARG_INFO_LINE_LENGTH, "%.*s", ++printed, arg_table[i].info_data);
+            info[printed-1] = ' ';
         }
         else
             snprintf(info, ARG_INFO_LINE_LENGTH, "%s (flag)", flag_string((Flag_Options)i));
 
-        printf("\t%-*s  %s\n", ARG_LINE_LENGTH, arg, info);
+        printf("\t%-*s  %.*s\n", ARG_LINE_LENGTH, arg, printed, info);
 
 
         if (printed < arg_table[i].info_count)
